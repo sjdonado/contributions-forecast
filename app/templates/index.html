@@ -8,6 +8,10 @@
     <input type="submit" value="Connect with Github">
   </form>
   {% if current_user %}
-    <p class="session">Welcome: <span class="variable">{{current_user['name']}}</span></p>
+    <p>
+      <span class="variable">Welcome {{current_user['name']}}</span>
+      <span class="variable">Total contributions in the last year: {{current_user['total_contributions']}}</span>
+    </p>
+    {% include 'chart.html' %}
   {% endif %}
 {% endblock %}

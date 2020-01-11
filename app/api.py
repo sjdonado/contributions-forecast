@@ -1,6 +1,7 @@
 import requests
 import hashlib
 import re
+import json
 
 from flask import redirect, request, session
 
@@ -58,16 +59,19 @@ def oauth_callback():
     return('Access token is required', 400)
 
   access_token = re.findall(r"^access_token=([\w]*)&", auth_response.text)[0]
-  session['access_token'] = access_token
 
   contributions_response = get_contributions(access_token)
-
-  app.logger.info(contributions_response)
   if contributions_response.status_code != 200:
     return('Get contributions query failed', 500)
 
-  session['current_user'] = contributions_response.json()['data']['user']
-  app.logger.info(session.get('current_user'))
+  user_data = contributions_response.json()['data']['user']
+
+  session['current_user'] = {
+    'name': user_data['name'],
+    'total_contributions': user_data['contributionsCollection']['contributionCalendar']['totalContributions'],
+    'weeks': json.dumps(user_data['contributionsCollection']['contributionCalendar']['weeks'])
+  }
+  # app.logger.info(session.get('current_user'))
 
   return redirect('/')
 

@@ -1,0 +1,50 @@
+{% block content %}
+  <canvas id="contributionsByWeeks" width="400" height="100"></canvas>
+  <canvas id="contributionsByDays" width="400" height="100"></canvas>
+  <script>
+  data = JSON.parse('{{ weeks|safe }}');   
+
+  contributionsByWeeksLabels = [];
+  contributionsByWeeks = data.map((week) => {
+    contributionsByWeeksLabels.push(week.firstDay);
+    return week.contributionDays.reduce((acum, day) => acum + day.contributionCount, 0)
+  });
+
+  new Chart(document.getElementById('contributionsByWeeks').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: contributionsByWeeksLabels,
+      datasets: [{
+        label: 'Contributions by weeks',
+        borderColor: '#239a3b',
+        data: contributionsByWeeks,
+        fill: false,
+      }]
+    },
+    options: {}
+  });
+
+  contributionsByDaysLabels = [];
+  contributionsByDays = [];
+
+  for (let week of data) {
+    for (let day of week.contributionDays) {
+      contributionsByDays.push(day.contributionCount);
+      contributionsByDaysLabels.push(day.date);
+    }
+  }
+
+  new Chart(document.getElementById('contributionsByDays').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: contributionsByDaysLabels,
+      datasets: [{
+        label: 'Contributions by days',
+        borderColor: '#239a3b',
+        data: contributionsByDays,
+        fill: false,
+      }]
+    },
+  });
+  </script>
+{% endblock %}

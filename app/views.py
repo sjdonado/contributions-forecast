@@ -6,5 +6,6 @@ def home():
   return render_template(
     'index.html',
     current_user = session.get('current_user'),
-    username = session.get('username')
+    username = session.get('username'),
+    weeks = session.get('current_user')['weeks']
   )
