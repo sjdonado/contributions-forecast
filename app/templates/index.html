@@ -2,16 +2,18 @@
 
 {% block content %}
   <h1>Contributions predictor</h1>
-  <form action="/oauth/authorize">
-    Github username: <input type="text" name="username" value="{{ username }}">
-    <br>
-    <input type="submit" value="Connect with Github">
-  </form>
   {% if current_user %}
-    <p>
-      <span class="variable">Welcome {{current_user['name']}}</span>
-      <span class="variable">Total contributions in the last year: {{current_user['total_contributions']}}</span>
-    </p>
+    <div class="wrapper">
+      <span>Welcome {{current_user['name']}}</span>
+      <span>Username: {{username}}</span>
+      <span>Total contributions in the last year: {{current_user['total_contributions']}}</span>
+      <a href="/oauth/logout">Logout</a>
+    </div>
     {% include 'chart.html' %}
+  {% else %}
+    <form class="authorize-form" action="/oauth/authorize">
+      Github username <input type="text" name="username" value="{{ username }}">
+      <input type="submit" value="Connect with Github">
+    </form>
   {% endif %}
 {% endblock %}

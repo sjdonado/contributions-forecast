@@ -1,12 +1,25 @@
 from flask import Flask
 from flask_session import Session
-from config import Config
 
 sess = Session()
 
-app = Flask(__name__, instance_relative_config=False)
-app.config.from_object(Config)
-sess.init_app(app)
+def create_app():
+  """Construct the core application."""
+  app = Flask(__name__, instance_relative_config=False)
 
-from . import views
-from . import api
+  # Application Configuration
+  app.config.from_object('config.Config')
+
+  # Initialize Plugins
+  sess.init_app(app)
+
+  with app.app_context():
+    # Import parts of our application
+    from . import oauth
+    from . import routes
+    from .assets import compile_assets
+    app.register_blueprint(routes.main_bp)
+    app.register_blueprint(oauth.oauth_bp)
+    compile_assets(app)
+
+    return app

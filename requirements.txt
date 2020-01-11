@@ -1,4 +1,7 @@
 flask
 requests
 flask-session
+flask-assets
+cssmin
+jsmin
 redis

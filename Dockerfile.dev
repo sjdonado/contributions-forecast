@@ -10,6 +10,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python"]
+ENV FLASK_APP=wsgi.py
+ENV APP_CONFIG_FILE=config.py
+ENV FLASK_DEBUG=1
 
-CMD ["run.py"]
+CMD ["flask", "run", "--host=0.0.0.0"]

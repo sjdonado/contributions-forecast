@@ -10,11 +10,11 @@ services:
       - 5000:5000
     environment:
       FLASK_ENV: development
-      SECRET_KEY:
-      CLIENT_ID:
-      CLIENT_SECRET:
-      CALLBACK:
-      REDIS: redis://redis:6379
+      SECRET_KEY: 7a197fe73206411f84ca66fc
+      CLIENT_ID: 060c5cfd21d06158dcc1
+      CLIENT_SECRET: e253f9bdde606267e02d171a53c81441beb6c3da
+      CALLBACK: https://63460b51.ngrok.io/oauth/callback
+      REDIS_URL: redis://redis:6379
     depends_on:
       - redis
   redis:

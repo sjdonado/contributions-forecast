@@ -3,14 +3,18 @@ import hashlib
 import re
 import json
 
-from flask import redirect, request, session
+from flask import redirect, request, session, Blueprint
 
 from . import queries
-from . import app
 from config import Config
 
 client_id = Config.CLIENT_ID
 client_secret = Config.CLIENT_SECRET
+
+# Blueprint Configuration
+oauth_bp = Blueprint('oauth_bp', __name__,
+                    template_folder='templates',
+                    static_folder='static')
 
 def get_contributions(access_token):
   headers = { 'Authorization': "bearer {}".format(access_token) }
@@ -22,12 +26,14 @@ def get_contributions(access_token):
     },
   }
 
-  app.logger.info(data)
-  app.logger.info(headers)
   return requests.post(url = "https://api.github.com/graphql", json = data, headers = headers)
 
+@oauth_bp.route('/oauth/logout', methods=['GET'])
+def logout():
+  session.clear()
+  return redirect('/')
 
-@app.route('/oauth/authorize', methods=['GET'])
+@oauth_bp.route('/oauth/authorize', methods=['GET'])
 def oauth_authorize():
   username = request.values.get('username')
   if username is None:
@@ -39,7 +45,7 @@ def oauth_authorize():
   return redirect("https://github.com/login/oauth/authorize?client_id={}&login={}&scope=user&state={}"
     .format(client_id, username, session.get('state')))
 
-@app.route('/oauth/callback', methods=['GET'])
+@oauth_bp.route('/oauth/callback', methods=['GET'])
 def oauth_callback():
   code = request.values.get('code')
   if code is None:
@@ -71,7 +77,6 @@ def oauth_callback():
     'total_contributions': user_data['contributionsCollection']['contributionCalendar']['totalContributions'],
     'weeks': json.dumps(user_data['contributionsCollection']['contributionCalendar']['weeks'])
   }
-  # app.logger.info(session.get('current_user'))
 
   return redirect('/')
 
