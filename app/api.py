@@ -4,11 +4,27 @@ import re
 
 from flask import redirect, request, session
 
+from . import queries
 from . import app
 from config import Config
 
 client_id = Config.CLIENT_ID
 client_secret = Config.CLIENT_SECRET
+
+def get_contributions(access_token):
+  headers = { 'Authorization': "bearer {}".format(access_token) }
+
+  data = {
+    "query": queries.get_contributions,
+    "variables": {
+      "username": session.get('username'),
+    },
+  }
+
+  app.logger.info(data)
+  app.logger.info(headers)
+  return requests.post(url = "https://api.github.com/graphql", json = data, headers = headers)
+
 
 @app.route('/oauth/authorize', methods=['GET'])
 def oauth_authorize():
@@ -43,6 +59,15 @@ def oauth_callback():
 
   access_token = re.findall(r"^access_token=([\w]*)&", auth_response.text)[0]
   session['access_token'] = access_token
+
+  contributions_response = get_contributions(access_token)
+
+  app.logger.info(contributions_response)
+  if contributions_response.status_code != 200:
+    return('Get contributions query failed', 500)
+
+  session['current_user'] = contributions_response.json()['data']['user']
+  app.logger.info(session.get('current_user'))
 
   return redirect('/')
 
