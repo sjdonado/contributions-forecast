@@ -1,10 +1,10 @@
 from flask import render_template
-from app import app
+from . import app
 
 @app.route('/')
 def home():
-  return "Hello world!"
+  return render_template('index.html')
 
 @app.route('/template')
 def template():
-  return render_template('home.html')
+  return render_template('index.html')

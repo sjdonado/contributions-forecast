@@ -5,8 +5,12 @@ services:
     volumes:
       - .:/usr/src
     ports:
-      - 4000:4000
+      - 3000:3000
     environment:
-      HOSTNAME: 0.0.0.0
-      PORT: 4000
       FLASK_ENV: development
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      SECRET_TOKEN:
+      CLIENT_ID:
+      CLIENT_SECRET:
+      CALLBACK: https://b435fdb1.ngrok.io/oauth/callback
