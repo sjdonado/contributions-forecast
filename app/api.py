@@ -69,8 +69,8 @@ def oauth_callback():
   session['current_user'] = {
     'name': user_data['name'],
     'total_contributions': user_data['contributionsCollection']['contributionCalendar']['totalContributions'],
-    'weeks': json.dumps(user_data['contributionsCollection']['contributionCalendar']['weeks'])
   }
+  session['weeks'] = json.dumps(user_data['contributionsCollection']['contributionCalendar']['weeks'])
   # app.logger.info(session.get('current_user'))
 
   return redirect('/')

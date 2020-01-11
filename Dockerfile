@@ -2,14 +2,12 @@ FROM python:3.7-alpine
 
 WORKDIR /usr/src
 
-EXPOSE 5000
-
 COPY ./requirements.txt .
+
+RUN pip install wheel
 
 RUN pip install -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python"]
-
-CMD ["run.py"]
+CMD ["gunicorn"  , "-b", "0.0.0.0:80", "run:app"]

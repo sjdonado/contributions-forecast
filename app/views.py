@@ -2,10 +2,10 @@ from flask import render_template, session
 from . import app
 
 @app.route('/')
-def home():
+def index():
   return render_template(
     'index.html',
     current_user = session.get('current_user'),
-    username = session.get('username'),
-    weeks = session.get('current_user')['weeks']
+    username = '' if session.get('username') is None else session.get('username'),
+    weeks = session.get('weeks')
   )
