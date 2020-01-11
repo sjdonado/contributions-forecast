@@ -2,4 +2,3 @@ flask
 requests
 flask-session
 redis
-gunicorn

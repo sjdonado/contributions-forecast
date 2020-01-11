@@ -12,4 +12,4 @@ class Config:
 
   # Flask-Session
   SESSION_TYPE = 'redis'
-  SESSION_REDIS = redis.from_url(environ.get('REDIS'))
+  SESSION_REDIS = redis.from_url(environ.get('REDIS_URL'))
