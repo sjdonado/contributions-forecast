@@ -16,8 +16,8 @@ def index():
     weeks = json.dumps(session.get('current_user')['weeks'] if session.get('current_user') else None)
   )
 
-@main_bp.route('/calculate')
-def calculate_prediction():
+@main_bp.route('/prediction')
+def prediction():
   weeks = session.get('current_user')['weeks'] if session.get('current_user') else None
   predicted_days = predictor.by_weeks(weeks)
   # '' if session.get('username') is None else session.get('username')
