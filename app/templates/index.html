@@ -7,6 +7,7 @@
       <span>Welcome {{current_user['name']}}</span>
       <span>Username: {{username}}</span>
       <span>Total contributions in the last year: {{current_user['total_contributions']}}</span>
+      <a href="/calculate">Calculate prediction</a>
       <a href="/oauth/logout">Logout</a>
     </div>
     {% include 'chart.html' %}

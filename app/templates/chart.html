@@ -1,14 +1,35 @@
 {% block content %}
-  <canvas id="contributionsByWeeks" width="400" height="100"></canvas>
-  <canvas id="contributionsByDays" width="400" height="100"></canvas>
+  <canvas id="contributionsByWeeks" width="2400" height="600"></canvas>
+  <canvas id="contributionsByDays" width="2400" height="600"></canvas>
   <script>
-  data = JSON.parse('{{ weeks|safe }}');   
+  data = JSON.parse('{{ weeks|safe }}');
+  if ('{{ predicted_days }}'.length) {
+    predictedDays = JSON.parse('{{ predicted_days|safe }}');
+    console.log('predictedDays', predictedDays);
+  }
+
+  console.log('data', data); 
 
   contributionsByWeeksLabels = [];
-  contributionsByWeeks = data.map((week) => {
+  contributionsByWeeks = [];
+
+  contributionsByDaysLabels = [];
+  contributionsByDays = [];
+
+  let acum ;
+  for (let week of data) {
+    acum = 0;
     contributionsByWeeksLabels.push(week.firstDay);
-    return week.contributionDays.reduce((acum, day) => acum + day.contributionCount, 0)
-  });
+    for (let day of week.contributionDays) {
+      contributionsByDays.push(day.contributionCount);
+      contributionsByDaysLabels.push(day.date);
+      acum += day.contributionCount;
+    }
+    contributionsByWeeks.push(acum);
+  }
+
+  // console.log('contributionsByWeeks', contributionsByWeeks);
+  // console.log('contributionsByDays', contributionsByDays);
 
   new Chart(document.getElementById('contributionsByWeeks').getContext('2d'), {
     type: 'line',
@@ -21,18 +42,10 @@
         fill: false,
       }]
     },
-    options: {}
-  });
-
-  contributionsByDaysLabels = [];
-  contributionsByDays = [];
-
-  for (let week of data) {
-    for (let day of week.contributionDays) {
-      contributionsByDays.push(day.contributionCount);
-      contributionsByDaysLabels.push(day.date);
+    options: {
+      responsive: false,
     }
-  }
+  });
 
   new Chart(document.getElementById('contributionsByDays').getContext('2d'), {
     type: 'line',
@@ -45,6 +58,9 @@
         fill: false,
       }]
     },
+    options: {
+      responsive: false,
+    }
   });
   </script>
 {% endblock %}

@@ -1,12 +1,11 @@
 import requests
 import hashlib
 import re
-import json
 
 from flask import redirect, request, session, Blueprint
 
-from . import queries
 from config import Config
+from .graphql import queries
 
 client_id = Config.CLIENT_ID
 client_secret = Config.CLIENT_SECRET
@@ -75,7 +74,7 @@ def oauth_callback():
   session['current_user'] = {
     'name': user_data['name'],
     'total_contributions': user_data['contributionsCollection']['contributionCalendar']['totalContributions'],
-    'weeks': json.dumps(user_data['contributionsCollection']['contributionCalendar']['weeks'])
+    'weeks': user_data['contributionsCollection']['contributionCalendar']['weeks']
   }
 
   return redirect('/')

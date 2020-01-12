@@ -1,7 +1,12 @@
+import logging
 from flask import Flask
 from flask_session import Session
 
+global logger
+
 sess = Session()
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='info.log',level=logging.DEBUG)
 
 def create_app():
   """Construct the core application."""
