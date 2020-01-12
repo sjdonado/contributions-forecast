@@ -17,9 +17,7 @@ def create_app():
     # Import parts of our application
     from . import oauth
     from . import routes
-    from .assets import compile_assets
     app.register_blueprint(routes.main_bp)
     app.register_blueprint(oauth.oauth_bp)
-    compile_assets(app)
 
     return app
