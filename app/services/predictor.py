@@ -47,7 +47,7 @@ def preprocess(data_raw, seq_len, train_split):
 
   return X_train, y_train, X_test, y_test
 
-def by_weeks(weeks):
+def execute(weeks):
   days = {
     'Date': [],
     'Contributions': []
@@ -82,7 +82,7 @@ def by_weeks(weeks):
   # Preprocessing
   X_train, y_train, X_test, y_test = preprocess(scaled_contributions, SEQ_LEN, train_split = 0.95)
 
-  loger.info(y_test)
+  logger.info(y_test)
 
   logger.info(X_train.shape)
   logger.info(X_test.shape)

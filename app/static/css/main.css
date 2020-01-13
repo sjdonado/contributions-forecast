@@ -3,11 +3,15 @@ body {
 }
 
 h1 {
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .authorize-form {
   display: flex;
+}
+
+.authorize-form > input {
+  margin-left: 6px;
 }
 
 .wrapper {
@@ -15,6 +19,6 @@ h1 {
   flex-direction: column;
 }
 
-.wrapper > .span {
-  margin-bottom: 4px;
+.wrapper > span {
+  margin-bottom: 6px;
 }

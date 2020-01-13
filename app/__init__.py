@@ -2,8 +2,10 @@ import logging
 from config import Config
 from flask import Flask
 from flask_session import Session
+from flask_executor import Executor
 
 global logger
+global executor
 
 sess = Session()
 logger = logging.getLogger(__name__)
@@ -11,10 +13,10 @@ logger = logging.getLogger(__name__)
 if Config.FLASK_ENV == 'development':
   logging.basicConfig(filename='info.log',level=logging.INFO)
 
-def create_app():
-  """Construct the core application."""
-  app = Flask(__name__, instance_relative_config=False)
+app = Flask(__name__, instance_relative_config=False)
+executor = Executor(app)
 
+def create_app():
   # Application Configuration
   app.config.from_object(Config)
 

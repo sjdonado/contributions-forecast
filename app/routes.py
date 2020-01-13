@@ -1,6 +1,7 @@
 import json
-from flask import render_template, session, Blueprint
+from flask import render_template, session, Blueprint, redirect
 from .services import predictor
+from . import executor
 
 main_bp = Blueprint('main_bp', __name__,
                     template_folder='templates',
@@ -8,22 +9,29 @@ main_bp = Blueprint('main_bp', __name__,
 
 @main_bp.route('/')
 def index():
-  session['username'] = ''
+  weeks = session.get('current_user')['weeks'] if session.get('current_user') else None
+
   return render_template(
     'index.html',
     current_user = session.get('current_user'),
-    username = session.get('username'),
-    weeks = json.dumps(session.get('current_user')['weeks'] if session.get('current_user') else None)
+    username = session.get('username') if session.get('username') else '',
+    weeks = json.dumps(weeks),
+    prediction_status = session.get('prediction_status'),
+    prediction = json.dumps(session.get('prediction'))
   )
 
 @main_bp.route('/prediction')
 def prediction():
-  weeks = session.get('current_user')['weeks'] if session.get('current_user') else None
-  # predicted_days = predictor.by_weeks(weeks)
-  return render_template(
-    'index.html',
-    current_user = session.get('current_user'),
-    username = session.get('username'),
-    weeks = json.dumps(weeks),
-    predicted_days = json.dumps("[]")
-  )
+  if session.get('prediction_status') is None:
+    weeks = session.get('current_user')['weeks'] if session.get('current_user') else None
+    session['prediction_status'] = 'Sent'
+
+    executor.submit(call_predictor, weeks)
+
+  return redirect('/')
+
+def call_predictor(weeks):
+  if weeks:
+    session['prediction_status'] = 'Training...'
+    session['prediction'] = predictor.execute(weeks)
+    session['prediction_status'] = 'Completed'

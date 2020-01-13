@@ -3,9 +3,9 @@
   <canvas id="contributionsByDays" width="2400" height="600"></canvas>
   <script>
   data = JSON.parse('{{ weeks|safe }}');
-  if ('{{ predicted_days }}'.length) {
-    predictedDays = JSON.parse('{{ predicted_days|safe }}');
-    console.log('predictedDays', predictedDays);
+  if ('{{ prediction }}'.length) {
+    predictedDays = JSON.parse('{{ prediction|safe }}');
+    console.log('prediction', predictedDays);
   }
 
   console.log('data', data); 

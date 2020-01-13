@@ -1,4 +1,5 @@
-flask
+Flask
+Flask-Session
+Flask-Executor
 requests
-flask-session
 redis
