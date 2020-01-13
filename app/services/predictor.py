@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Bidirectional, Dropout, Activation, Dense, LSTM
-from tensorflow.python.keras.layers import CuDNNLSTM
 from tensorflow.keras.models import Sequential
 
 tf.config.optimizer.set_jit(True)
@@ -55,7 +54,8 @@ def by_weeks(weeks):
   }
   for week in weeks:
     for day in week['contributionDays']:
-      days['Date'].append(pd.to_datetime(day['date'], format='%Y-%m-%d'))
+      # days['Date'].append(pd.to_datetime(day['date'], format='%Y-%m-%d'))
+      days['Date'].append(day['date'])
       days['Contributions'].append(day['contributionCount'])
 
   logger.info(days)
@@ -63,14 +63,14 @@ def by_weeks(weeks):
   np.random.seed(RANDOM_SEED)
 
   df = pd.DataFrame.from_dict(days)
-  # df = df.sort_values('Date')
+  df = df.sort_values('Date')
 
   logger.info(df.shape)
 
   # Normalization
   scaler = MinMaxScaler()
-  contributions_price = df.Contributions.values.reshape(-1, 1)
-  scaled_contributions = scaler.fit_transform(contributions_price)
+  contributions = df.Contributions.values.reshape(-1, 1)
+  scaled_contributions = scaler.fit_transform(contributions)
 
   logger.info(np.isnan(scaled_contributions).any())
 
@@ -82,20 +82,22 @@ def by_weeks(weeks):
   # Preprocessing
   X_train, y_train, X_test, y_test = preprocess(scaled_contributions, SEQ_LEN, train_split = 0.95)
 
+  loger.info(y_test)
+
   logger.info(X_train.shape)
   logger.info(X_test.shape)
 
   # Model
   model = keras.Sequential()
 
-  model.add(Bidirectional(CuDNNLSTM(WINDOW_SIZE, return_sequences = True),
+  model.add(Bidirectional(LSTM(WINDOW_SIZE, return_sequences = True, activation='tanh', recurrent_activation='sigmoid'),
                           input_shape = (WINDOW_SIZE, X_train.shape[-1])))
   model.add(Dropout(rate = DROPOUT))
 
-  model.add(Bidirectional(CuDNNLSTM((WINDOW_SIZE * 2), return_sequences = True)))
+  model.add(Bidirectional(LSTM((WINDOW_SIZE * 2), return_sequences = True, activation='tanh', recurrent_activation='sigmoid')))
   model.add(Dropout(rate = DROPOUT))
 
-  model.add(Bidirectional(CuDNNLSTM(WINDOW_SIZE, return_sequences = False)))
+  model.add(Bidirectional(LSTM(WINDOW_SIZE, return_sequences = False)))
 
   model.add(Dense(units = 1))
 

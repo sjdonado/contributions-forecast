@@ -19,12 +19,11 @@ def index():
 @main_bp.route('/prediction')
 def prediction():
   weeks = session.get('current_user')['weeks'] if session.get('current_user') else None
-  predicted_days = predictor.by_weeks(weeks)
-  # '' if session.get('username') is None else session.get('username')
+  # predicted_days = predictor.by_weeks(weeks)
   return render_template(
     'index.html',
     current_user = session.get('current_user'),
     username = session.get('username'),
     weeks = json.dumps(weeks),
-    predicted_days = json.dumps(predicted_days)
+    predicted_days = json.dumps("[]")
   )
