@@ -4,7 +4,7 @@
   <canvas id="contributionsByDays" width="2400" height="600"></canvas>
   <script>
   data = JSON.parse('{{ weeks|safe }}');
-  if ('{{ prediction }}'.length) {
+  if ('{{ prediction }}'.length && JSON.parse('{{ prediction|safe }}')) {
     prediction = JSON.parse('{{ prediction|safe }}');
     console.log('prediction', prediction);
     days = []
