@@ -13,8 +13,19 @@ from tensorflow.keras.layers import Bidirectional, Dropout, Activation, Dense, L
 from tensorflow.python.keras.layers import CuDNNLSTM
 from tensorflow.keras.models import Sequential
 
+tf.config.optimizer.set_jit(True)
+
 RANDOM_SEED = 42
+
+# Preprocessing
 SEQ_LEN = 100
+
+# Model
+DROPOUT = 0.2
+WINDOW_SIZE = SEQ_LEN - 1
+
+# Training
+BATCH_SIZE = 64
 
 def to_sequences(data, seq_len):
   d = []
@@ -44,7 +55,7 @@ def by_weeks(weeks):
   }
   for week in weeks:
     for day in week['contributionDays']:
-      days['Date'].append(day['date'])
+      days['Date'].append(pd.to_datetime(day['date'], format='%Y-%m-%d'))
       days['Contributions'].append(day['contributionCount'])
 
   logger.info(days)
@@ -73,5 +84,47 @@ def by_weeks(weeks):
 
   logger.info(X_train.shape)
   logger.info(X_test.shape)
+
+  # Model
+  model = keras.Sequential()
+
+  model.add(Bidirectional(CuDNNLSTM(WINDOW_SIZE, return_sequences = True),
+                          input_shape = (WINDOW_SIZE, X_train.shape[-1])))
+  model.add(Dropout(rate = DROPOUT))
+
+  model.add(Bidirectional(CuDNNLSTM((WINDOW_SIZE * 2), return_sequences = True)))
+  model.add(Dropout(rate = DROPOUT))
+
+  model.add(Bidirectional(CuDNNLSTM(WINDOW_SIZE, return_sequences = False)))
+
+  model.add(Dense(units = 1))
+
+  model.add(Activation('linear'))
+
+  # Training
+  model.compile(
+    loss = 'mean_squared_error', 
+    optimizer = 'adam'
+  )
+
+  model.fit(
+    X_train, 
+    y_train, 
+    epochs = 50, 
+    batch_size = BATCH_SIZE, 
+    shuffle = False,
+    validation_split = 0.1
+  )
+
+  model.evaluate(X_test, y_test)
+
+  # Prediction
+  y_hat = model.predict(X_test)
+
+  y_test_inverse = scaler.inverse_transform(y_test)
+  y_hat_inverse = scaler.inverse_transform(y_hat)
+
+  logger.info(y_test_inverse)
+  logger.info(y_hat_inverse)
 
   return days
