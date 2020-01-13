@@ -1,3 +1,0 @@
-#! /bin/bash
-
-ssh -i "contributions-predictor.pem" ubuntu@ec2-35-170-210-55.compute-1.amazonaws.com

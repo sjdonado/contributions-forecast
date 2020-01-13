@@ -15,4 +15,4 @@ RUN pip3 install  --user  -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "wsgi:app", "--preload"]
+CMD ["gunicorn", "wsgi:app"]
