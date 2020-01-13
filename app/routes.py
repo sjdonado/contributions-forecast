@@ -33,5 +33,5 @@ def prediction():
 def call_predictor(weeks):
   if weeks:
     session['prediction_status'] = 'Training...'
-    session['prediction'] = predictor.execute(weeks)
+    session['prediction'] = json.dumps(predictor.execute(weeks))
     session['prediction_status'] = 'Completed'

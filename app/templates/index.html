@@ -9,6 +9,7 @@
       <span>Total contributions in the last year: {{current_user['total_contributions']}}</span>
       {% if prediction_status %}
         <span>Prediction status: {{prediction_status}}</span>
+        <a href="/">Reload</a>
       {% else %}
         <a href="/prediction">Calculate prediction</a>
       {% endif %}

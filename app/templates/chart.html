@@ -1,11 +1,31 @@
 {% block content %}
+  <canvas id="prediction" width="1200" height="600"></canvas>
   <canvas id="contributionsByWeeks" width="2400" height="600"></canvas>
   <canvas id="contributionsByDays" width="2400" height="600"></canvas>
   <script>
   data = JSON.parse('{{ weeks|safe }}');
   if ('{{ prediction }}'.length) {
-    predictedDays = JSON.parse('{{ prediction|safe }}');
-    console.log('prediction', predictedDays);
+    prediction = JSON.parse('{{ prediction|safe }}');
+    console.log('prediction', prediction);
+    days = []
+    for (let i = 1; i <= prediction.results.length; i++) {
+      days.push(new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString())
+    }
+    new Chart(document.getElementById('prediction').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Prediction by weeks',
+          borderColor: '#d50000',
+          data: prediction.results,
+          fill: false,
+        }]
+      },
+      options: {
+        responsive: false,
+      }
+    });
   }
 
   console.log('data', data); 

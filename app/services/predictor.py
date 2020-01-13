@@ -1,12 +1,14 @@
 from .. import logger
 import os
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 import pandas as pd
 import seaborn as sns
-from pylab import rcParams
+import tensorflow as tf
 import matplotlib.pyplot as plt
+from datetime import datetime
+from datetime import timedelta
+from tensorflow import keras
+from pylab import rcParams
 from matplotlib import rc
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.layers import Bidirectional, Dropout, Activation, Dense, LSTM
@@ -17,18 +19,18 @@ tf.config.optimizer.set_jit(True)
 RANDOM_SEED = 42
 
 # Preprocessing
-SEQ_LEN = 100
+SEQ_LEN = 10
 
 # Model
 DROPOUT = 0.2
 WINDOW_SIZE = SEQ_LEN - 1
 
 # Training
-BATCH_SIZE = 64
+EPOCHS = 15
+BATCH_SIZE = 3
 
 def to_sequences(data, seq_len):
   d = []
-
   for index in range(len(data) - seq_len):
     d.append(data[index: index + seq_len])
 
@@ -36,7 +38,6 @@ def to_sequences(data, seq_len):
 
 def preprocess(data_raw, seq_len, train_split):
   data = to_sequences(data_raw, seq_len)
-
   num_train = int(train_split * data.shape[0])
 
   X_train = data[:num_train, :-1, :]
@@ -48,36 +49,31 @@ def preprocess(data_raw, seq_len, train_split):
   return X_train, y_train, X_test, y_test
 
 def execute(weeks):
-  days = {
-    'Date': [],
-    'Contributions': []
-  }
-  for week in weeks:
-    for day in week['contributionDays']:
-      # days['Date'].append(pd.to_datetime(day['date'], format='%Y-%m-%d'))
-      days['Date'].append(day['date'])
-      days['Contributions'].append(day['contributionCount'])
-
-  logger.info(days)
-  
   np.random.seed(RANDOM_SEED)
 
-  df = pd.DataFrame.from_dict(days)
-  df = df.sort_values('Date')
+  # Parsing data
+  contributions = []
+  for week in weeks:
+    for day in week['contributionDays']:
+      contributions.append(day['contributionCount'])
+
+  days = np.arange(0, len(contributions), 1)
+  df = pd.DataFrame(dict(contributions=contributions), index=days, columns=['contributions'])
+  # df = df.sort_values('Date')
 
   logger.info(df.shape)
 
   # Normalization
   scaler = MinMaxScaler()
-  contributions = df.Contributions.values.reshape(-1, 1)
+  contributions = df.contributions.values.reshape(-1, 1)
   scaled_contributions = scaler.fit_transform(contributions)
 
   logger.info(np.isnan(scaled_contributions).any())
 
-  scaled_contributions = scaled_contributions[~np.isnan(scaled_contributions)]
-  scaled_contributions = scaled_contributions.reshape(-1, 1)
+  # scaled_contributions = scaled_contributions[~np.isnan(scaled_contributions)]
+  # scaled_contributions = scaled_contributions.reshape(-1, 1)
 
-  logger.info(np.isnan(scaled_contributions).any())
+  # logger.info(np.isnan(scaled_contributions).any())
 
   # Preprocessing
   X_train, y_train, X_test, y_test = preprocess(scaled_contributions, SEQ_LEN, train_split = 0.95)
@@ -112,10 +108,10 @@ def execute(weeks):
   model.fit(
     X_train, 
     y_train, 
-    epochs = 50, 
+    epochs = EPOCHS, 
     batch_size = BATCH_SIZE, 
     shuffle = False,
-    validation_split = 0.1
+    validation_split = 0.2
   )
 
   model.evaluate(X_test, y_test)
@@ -129,4 +125,7 @@ def execute(weeks):
   logger.info(y_test_inverse)
   logger.info(y_hat_inverse)
 
-  return days
+  return {
+    "test": y_test_inverse,
+    "results": y_hat_inverse
+  }
