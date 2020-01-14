@@ -19,7 +19,7 @@ h1 {
   flex-direction: column;
 }
 
-.wrapper > button {
+.wrapper > button, .wrapper > a {
   width: 120px;
 }
 

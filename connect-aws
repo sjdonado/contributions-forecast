@@ -1,0 +1,3 @@
+#! /bin/bash
+
+ssh -i "contributions-forecast.pem" ubuntu@ec2-52-206-188-67.compute-1.amazonaws.com

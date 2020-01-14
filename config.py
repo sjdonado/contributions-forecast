@@ -12,5 +12,3 @@ class Config:
   # Flask-Session
   SESSION_TYPE = 'redis'
   SESSION_REDIS = redis.from_url(environ.get('REDIS_URL'))
-
-  PREFERRED_URL_SCHEME = 'https'

@@ -1,0 +1,30 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/usr/src
+    ports:
+      - 5000:5000
+    environment:
+      FLASK_ENV: production
+      SECRET_KEY:
+      CLIENT_ID:
+      CLIENT_SECRET:
+      CALLBACK: http://52.206.188.67/oauth/callback
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+  redis:
+    image: redis
+    entrypoint: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - 6379:6379
+    restart: always
+
+volumes:
+  redis-data: ~
