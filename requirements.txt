@@ -1,5 +1,4 @@
 Flask
 Flask-Session
-Flask-Executor
 requests
 redis

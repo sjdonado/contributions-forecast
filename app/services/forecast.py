@@ -5,8 +5,6 @@ import pandas as pd
 import seaborn as sns
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from datetime import datetime
-from datetime import timedelta
 from tensorflow import keras
 from pylab import rcParams
 from matplotlib import rc
@@ -19,15 +17,15 @@ tf.config.optimizer.set_jit(True)
 RANDOM_SEED = 42
 
 # Preprocessing
-SEQ_LEN = 10
+SEQ_LEN = 8
 
 # Model
 DROPOUT = 0.2
 WINDOW_SIZE = SEQ_LEN - 1
 
 # Training
-EPOCHS = 15
-BATCH_SIZE = 3
+EPOCHS = 30
+BATCH_SIZE = 16
 
 def to_sequences(data, seq_len):
   d = []
@@ -61,14 +59,14 @@ def execute(weeks):
   df = pd.DataFrame(dict(contributions=contributions), index=days, columns=['contributions'])
   # df = df.sort_values('Date')
 
-  logger.info(df.shape)
+  # logger.info(df.shape)
 
   # Normalization
   scaler = MinMaxScaler()
   contributions = df.contributions.values.reshape(-1, 1)
   scaled_contributions = scaler.fit_transform(contributions)
 
-  logger.info(np.isnan(scaled_contributions).any())
+  # logger.info(np.isnan(scaled_contributions).any())
 
   # scaled_contributions = scaled_contributions[~np.isnan(scaled_contributions)]
   # scaled_contributions = scaled_contributions.reshape(-1, 1)
@@ -76,12 +74,11 @@ def execute(weeks):
   # logger.info(np.isnan(scaled_contributions).any())
 
   # Preprocessing
-  X_train, y_train, X_test, y_test = preprocess(scaled_contributions, SEQ_LEN, train_split = 0.95)
+  X_train, y_train, X_test, y_test = preprocess(scaled_contributions, SEQ_LEN, train_split = 0.98)
 
-  logger.info(y_test)
-
-  logger.info(X_train.shape)
-  logger.info(X_test.shape)
+  # logger.info(y_test)
+  # logger.info(X_train.shape)
+  # logger.info(X_test.shape)
 
   # Model
   model = keras.Sequential()
@@ -111,21 +108,13 @@ def execute(weeks):
     epochs = EPOCHS, 
     batch_size = BATCH_SIZE, 
     shuffle = False,
-    validation_split = 0.2
+    validation_split = 0.1
   )
 
   model.evaluate(X_test, y_test)
 
   # Prediction
   y_hat = model.predict(X_test)
-
-  y_test_inverse = scaler.inverse_transform(y_test)
   y_hat_inverse = scaler.inverse_transform(y_hat)
 
-  logger.info(y_test_inverse)
-  logger.info(y_hat_inverse)
-
-  return {
-    "test": y_test_inverse,
-    "results": y_hat_inverse
-  }
+  return y_hat_inverse.tolist()

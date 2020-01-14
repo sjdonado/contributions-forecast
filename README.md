@@ -1,4 +1,4 @@
-# Contributions predictor
+# Contributions forecast
 
 ## Setup
 * Create an oauth app https://developer.github.com/apps/building-oauth-apps/

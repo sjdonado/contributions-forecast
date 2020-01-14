@@ -1,20 +1,17 @@
 {% extends "layout.html" %}
 
 {% block content %}
-  <h1>Contributions predictor</h1>
+  <h1>Contributions forecast</h1>
   {% if current_user %}
     <div class="wrapper">
       <span>Welcome {{current_user['name']}}</span>
       <span>Username: {{username}}</span>
-      <span>Total contributions in the last year: {{current_user['total_contributions']}}</span>
-      {% if prediction_status %}
-        <span>Prediction status: {{prediction_status}}</span>
-        <a href="/">Reload</a>
-      {% else %}
-        <a href="/prediction">Calculate prediction</a>
-      {% endif %}
       <a href="/oauth/logout">Logout</a>
+      <span>Total contributions in the last year: {{current_user['total_contributions']}}</span>
+      <button onclick="calculateForecast()">Calculate forecast</button>
+      <span id="forecast-status"></span>
     </div>
+    <canvas id="forecast" width="800" height="400" style="display: none"></canvas>
     {% include 'chart.html' %}
   {% else %}
     <form class="authorize-form" action="/oauth/authorize">
@@ -22,4 +19,60 @@
       <input type="submit" value="Connect with Github">
     </form>
   {% endif %}
+  <script>
+    let statusSpan
+    function calculateForecast() {
+      if (!statusSpan) {
+        statusSpan = document.getElementById("forecast-status");
+        statusSpan.textContent = "Status: Processing...";
+        fetch('/forecast')
+          .then(
+            function(response) {
+              if (response.status !== 200) {
+                console.log('Looks like there was a problem. Status Code: ' +
+                  response.status);
+                return;
+              }
+
+              statusSpan.textContent = "Status: Completed";
+
+              response.json().then(function(data) {
+                console.log(data);
+                const daysForecast = data.map((day) => day[0]);
+                console.log(daysForecast);
+
+                if (daysForecast.length) {
+                  const labels = [];
+                  for (let i = 0; i < daysForecast.length; i++) {
+                    labels.push(new Date(Date.now() + (i * 24 * 60 * 60 * 1000)).toLocaleDateString());
+                  }
+
+                  forecast = document.getElementById('forecast');
+                  forecast.style.display = 'block';
+
+                  new Chart(forecast.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                      labels: labels,
+                      datasets: [{
+                        label: 'Forecast',
+                        borderColor: '#d50000',
+                        data: daysForecast,
+                        fill: false,
+                      }]
+                    },
+                    options: {
+                      responsive: false,
+                    }
+                  });
+                }
+              });
+            }
+          )
+          .catch(function(err) {
+            console.log('Fetch Error :-S', err);
+          });
+      }
+    }
+  </script>
 {% endblock %}

@@ -19,6 +19,10 @@ h1 {
   flex-direction: column;
 }
 
+.wrapper > button {
+  width: 120px;
+}
+
 .wrapper > span {
   margin-bottom: 4px;
 }
